@@ -230,7 +230,7 @@ public:
 
 			float fSepWeight = 40.0f;
 			float fAliWeight = 30.0f;
-			float fCohWeight = 20.0f;
+			float fCohWeight = 10.0f;
 			float fPredatorWeight = 10000000.0f;
 
 			a.ax += fSeparationX * fSepWeight + fAlignmentX * fAliWeight + fCohesionX * fCohWeight + fEscapeX * fPredatorWeight;
@@ -253,13 +253,10 @@ public:
 		Fill(0, 0, ScreenWidth(), ScreenHeight(), ' ');
 
 		for (auto& a : vecFishs) {
-			if (a.type == 0) {
+			if (!IsPredator(a.type)) 
 				DrawWireFrameModel(modelFish, a.px, a.py, atan2f(a.vy, a.vx), a.radius, FG_WHITE);
-
-			}
-			if (a.type == 1) {
+			else
 				DrawWireFrameModel(modelFish, a.px, a.py, atan2f(a.vy, a.vx), a.radius, FG_RED);
-			}
 		}
 
 		return true;
