@@ -9,6 +9,11 @@ using namespace std;
 float Dist(float, float, float, float); // return the distance
 float DistSqu(float, float, float, float); // return the square of distance
 
+struct food
+{
+	float px, py;
+};
+
 class FishPond : public olcConsoleGameEngine
 {
 public:
@@ -20,6 +25,8 @@ private:
 	vector<pair<float, float>> modelFish;
 	vector<fish> vecFishs;
 	fish* pSelectedFish = nullptr;
+
+	vector<food> vecFoods;
 
 	void AddFish(float x, float y, float r, float MaxSpeed, int Type, float Range, float Separation) {
 		fish f(x, y, r, Type, vecFishs.size());
@@ -44,7 +51,7 @@ public:
 
 		int numFish = 200;
 		float fDefaultRad = 1.0f;
-		float fMaxSpeed = 40.0f;
+		float fMaxSpeed = 60.0f;
 		float fRange = 20.0f;
 		float fSeparation = 5.0f;
 
@@ -63,6 +70,11 @@ public:
 			}
 			AddFish(x, y, fDefaultRad, fMaxSpeed, 0, fRange, fSeparation);
 		}
+
+		/*food snack;
+		snack.px = (float)ScreenWidth() * 0.4;
+		snack.py = (float)ScreenHeight() * 0.5;
+		vecFoods.push_back(snack);*/
 
 		return true;
 	}
@@ -146,6 +158,31 @@ public:
 			float fRandAy = ((float)rand() * 2 / RAND_MAX - 1) * fRandWeight;
 			a.ax = fRandAx;
 			a.ay = fRandAy;
+			
+			// food attraction
+			/*float fFoodAttracX, fFoodAttracY;
+			fFoodAttracX = 0.0f;
+			fFoodAttracY = 0.0f;
+			if (!IsPredator(a.type)) {
+				if (vecFoods.size() != 0) {
+					int FoodClosest = 0;
+					for (int i = 0; i < vecFoods.size(); i++) {
+						if (DistSqu(a.px, a.py, vecFoods[i].px, vecFoods[i].py) < DistSqu(a.px, a.py, vecFoods[FoodClosest].px, vecFoods[FoodClosest].py))
+							FoodClosest = i;
+					}
+					float fFoodDist = Dist(a.px, a.py, vecFoods[FoodClosest].px, vecFoods[FoodClosest].py);
+					fFoodAttracX = -(a.px - vecFoods[FoodClosest].px) / fFoodDist - a.vx;
+					fFoodAttracY = -(a.py - vecFoods[FoodClosest].py) / fFoodDist - a.vy;
+					float fFoodAttracAbs = sqrtf(fFoodAttracX * fFoodAttracX + fFoodAttracY * fFoodAttracY);
+					if (fFoodAttracAbs != 0.0f) {
+						fFoodAttracX /= fFoodAttracAbs;
+						fFoodAttracY /= fFoodAttracAbs;
+					}
+				}
+			}
+			float fFoodWeight = 1000.0f;
+			a.ax += fFoodAttracX * fFoodWeight;
+			a.ay += fFoodAttracY * fFoodWeight;*/
 
 			// flocking behaviour
 			vector<fish> vecNeighbourFishs;
@@ -231,10 +268,13 @@ public:
 			float fSepWeight = 40.0f;
 			float fAliWeight = 30.0f;
 			float fCohWeight = 10.0f;
-			float fPredatorWeight = 10000000.0f;
 
-			a.ax += fSeparationX * fSepWeight + fAlignmentX * fAliWeight + fCohesionX * fCohWeight + fEscapeX * fPredatorWeight;
-			a.ay += fSeparationY * fSepWeight + fAlignmentY * fAliWeight + fCohesionY * fCohWeight + fEscapeY * fPredatorWeight;
+			a.ax += fSeparationX * fSepWeight + fAlignmentX * fAliWeight + fCohesionX * fCohWeight;
+			a.ay += fSeparationY * fSepWeight + fAlignmentY * fAliWeight + fCohesionY * fCohWeight;
+
+			float fPredatorWeight = 10000000.0f;
+			a.ax += fEscapeX * fPredatorWeight;
+			a.ay += fEscapeY * fPredatorWeight;
 
 			float fVAbs = sqrtf((a.vx + a.ax * fElapsedTime) * (a.vx + a.ax * fElapsedTime) + (a.vy + a.ay * fElapsedTime) * (a.vy + a.ay * fElapsedTime));
 			a.vx = (a.vx + a.ax * fElapsedTime) / fVAbs;
@@ -257,6 +297,10 @@ public:
 				DrawWireFrameModel(modelFish, a.px, a.py, atan2f(a.vy, a.vx), a.radius, FG_WHITE);
 			else
 				DrawWireFrameModel(modelFish, a.px, a.py, atan2f(a.vy, a.vx), a.radius, FG_RED);
+		}
+
+		for (auto& snack : vecFoods) {
+			DrawWireFrameModel(modelFish, snack.px, snack.py, 0.0f, 1.0f, FG_YELLOW);
 		}
 
 		return true;
