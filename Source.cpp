@@ -53,7 +53,7 @@ public:
 		float fDefaultRad = 1.0f;
 		float fMaxSpeed = 60.0f;
 		float fRange = 20.0f;
-		float fSeparation = 5.0f;
+		float fSeparation = 4.0f;
 
 		for (int i = 0; i < numFish; i++) {
 			float x, y;
@@ -96,7 +96,7 @@ public:
 			float fDist = Dist(x1, y1, x2, y2);
 			float fDirx = (x1 - x2) / fDist;
 			float fDiry = (y1 - y2) / fDist;
-			return (vx * fDirx) + (vy * fDiry) <= -cosf(3 * 3.14159f / 4);
+			return (vx * fDirx) + (vy * fDiry) <= -cosf(3.14159f / 2);
 		};
 
 		auto IsPredator = [](int Type) {
@@ -105,7 +105,7 @@ public:
 
 		if (m_mouse[1].bPressed) {
 			float fPredatorRad = 10.0f;
-			float fPredatorSpeed = 25.0f;
+			float fPredatorSpeed = 10.0f + (float)rand() / RAND_MAX * 20.0f;
 			float fPredatorRange = 40.0f;
 			float fPredatorSeparation = 30.0f;
 			AddFish(m_mousePosX, m_mousePosY, fPredatorRad, fPredatorSpeed, 1, fPredatorRange, fPredatorSeparation);
@@ -265,7 +265,7 @@ public:
 				}
 			}
 
-			float fSepWeight = 40.0f;
+			float fSepWeight = 50.0f;
 			float fAliWeight = 30.0f;
 			float fCohWeight = 10.0f;
 
