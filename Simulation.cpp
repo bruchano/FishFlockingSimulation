@@ -50,18 +50,18 @@ private:
 	float fSightAngle = 2.0f / 3;
 	float fSeparation = 4.0f;
 
-	float fPredatorMinRad = 8.0f;
-	float fPredatorRadRange = 4.0f;
-	float fPredatorMinSpeed = 10.0f;
-	float fPredatorSpeedRange = 15.0f;
+	float fPredatorMinRad = 9.0f;
+	float fPredatorRadRange = 3.0f;
+	float fPredatorMinSpeed = 15.0f;
+	float fPredatorSpeedRange = 5.0f;
 	float fPredatorRange = 40.0f;
-	float fPredatorSightAngle = 3.0f / 4;
+	float fPredatorSightAngle = 8.0f / 9;
 	float fPredatorSeparation = 30.0f;
 	float fPredatorSepMassDifference = 10.0f;
 	
 	float fRandWeight = 2.0f;
 
-	float fSepWeight = 10.0f;
+	float fSepWeight = 15.0f;
 	float fAliWeight = 10.0f;
 	float fCohWeight = 5.0f;
 
@@ -276,8 +276,8 @@ public:
 
 				if (vx_mean != 0.0f || vy_mean != 0.0f) {
 					float fVMeanAbs = sqrtf(vx_mean * vx_mean + vy_mean * vy_mean);
-					fAlignmentX = vx_mean / fVMeanAbs - a.vx;
-					fAlignmentX = vy_mean / fVMeanAbs - a.vy;
+					fAlignmentX = vx_mean / fVMeanAbs;
+					fAlignmentX = vy_mean / fVMeanAbs;
 				}
 
 				
@@ -285,8 +285,8 @@ public:
 					x_mean /= (float)vecNeighbourFishs.size();
 					y_mean /= (float)vecNeighbourFishs.size();
 					float fDistAbs = Dist(a.px, a.py, x_mean, y_mean);
-					fCohesionX = -(a.px - x_mean) / fDistAbs - a.vx;
-					fCohesionY = -(a.py - y_mean) / fDistAbs - a.vy;
+					fCohesionX = -(a.px - x_mean) / fDistAbs;
+					fCohesionY = -(a.py - y_mean) / fDistAbs;
 				}
 
 				if (fSeparationX != 0.0f || fSeparationY != 0.0f) {
