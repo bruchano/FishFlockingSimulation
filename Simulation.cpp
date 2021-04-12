@@ -48,7 +48,7 @@ private:
 	float fMaxSpeed = 50.0f;
 	float fRange = 15.0f;
 	float fSightAngle = 2.0f / 3;
-	float fSeparation = 4.0f;
+	float fSeparation = 3.0f;
 
 	float fPredatorMinRad = 9.0f;
 	float fPredatorRadRange = 3.0f;
@@ -56,20 +56,22 @@ private:
 	float fPredatorSpeedRange = 5.0f;
 	float fPredatorRange = 40.0f;
 	float fPredatorSightAngle = 8.0f / 9;
-	float fPredatorSeparation = 30.0f;
+	float fPredatorSeparation = 8.0f;
 	float fPredatorSepMassDifference = 10.0f;
 	
 	float fRandWeight = 2.0f;
 
-	float fSepWeight = 15.0f;
+	float fFoodWeight = 1000.0f;
+
+	float fSepWeight = 30.0f;
 	float fAliWeight = 10.0f;
 	float fCohWeight = 10.0f;
 
 	float fMinEscapeDistance = 6.0f;
-	float fPredatorWeight = 1000.0f;
+	float fPredatorWeight = 10000.0f;
 
 	float fMinDistFromBoundary = 5.0f;
-	float fTurnWeight = 30.0f;
+	float fTurnWeight = 25.0f;
 
 public:
 	bool OnUserCreate() {
@@ -188,11 +190,13 @@ public:
 			a.ay = fRandAy;
 			
 			// food attraction
-			/*float fFoodAttracX, fFoodAttracY;
-			fFoodAttracX = 0.0f;
-			fFoodAttracY = 0.0f;
+			/*
 			if (!IsPredator(a.type)) {
 				if (vecFoods.size() != 0) {
+					float fFoodAttracX, fFoodAttracY;
+					fFoodAttracX = 0.0f;
+					fFoodAttracY = 0.0f;
+
 					int FoodClosest = 0;
 					for (int i = 0; i < vecFoods.size(); i++) {
 						if (DistSqu(a.px, a.py, vecFoods[i].px, vecFoods[i].py) < DistSqu(a.px, a.py, vecFoods[FoodClosest].px, vecFoods[FoodClosest].py))
@@ -206,11 +210,13 @@ public:
 						fFoodAttracX /= fFoodAttracAbs;
 						fFoodAttracY /= fFoodAttracAbs;
 					}
+
+					a.ax += fFoodAttracX * fFoodWeight;
+					a.ay += fFoodAttracY * fFoodWeight;
+
 				}
 			}
-			float fFoodWeight = 1000.0f;
-			a.ax += fFoodAttracX * fFoodWeight;
-			a.ay += fFoodAttracY * fFoodWeight;*/
+			*/
 
 			// flocking behaviour
 			vector<fish> vecNeighbourFishs;
@@ -224,23 +230,26 @@ public:
 				}
 			}
 			
-			float fSeparationX, fSeparationY, fAlignmentX, fAlignmentY, fCohesionX, fCohesionY;
-			fSeparationX = 0.0f;
-			fSeparationY = 0.0f;
-			fAlignmentX = 0.0f;
-			fAlignmentY = 0.0f;
-			fCohesionX = 0.0f;
-			fCohesionY = 0.0f;
-
-			float fEscapeX, fEscapeY;
-			fEscapeX = 0.0f;
-			fEscapeY = 0.0f;
+			
 
 			if (vecNeighbourFishs.size() != 0) {
+				float fSeparationX, fSeparationY, fAlignmentX, fAlignmentY, fCohesionX, fCohesionY;
+				fSeparationX = 0.0f;
+				fSeparationY = 0.0f;
+				fAlignmentX = 0.0f;
+				fAlignmentY = 0.0f;
+				fCohesionX = 0.0f;
+				fCohesionY = 0.0f;
+
+				float fEscapeX, fEscapeY;
+				fEscapeX = 0.0f;
+				fEscapeY = 0.0f;
+
 				float x_mean = 0.0f;
 				float y_mean = 0.0f;
 				float vx_mean = 0.0f;
 				float vy_mean = 0.0f;
+
 				for (auto& b : vecNeighbourFishs) {
 					if (a.type == b.type) {
 						if (!IsPredator(a.type)) {
@@ -249,13 +258,13 @@ public:
 							vx_mean += b.vx;
 							vy_mean += b.vy;
 
-							if (DistSqu(a.px, a.py, b.px, b.py) < a.separation * a.separation) {
+							if (Dist(a.px, a.py, b.px, b.py) - a.radius - b.radius < a.separation) {
 								fSeparationX += a.px - b.px;
 								fSeparationY += a.py - b.py;
 							}
 						}
 						else {
-							if (DistSqu(a.px, a.py, b.px, b.py) < a.separation * a.separation) {
+							if (Dist(a.px, a.py, b.px, b.py) - a.radius - b.radius <  a.separation) {
 								if (a.mass - b.mass < fPredatorSepMassDifference) {
 									fSeparationX += a.px - b.px;
 									fSeparationY += a.py - b.py;
@@ -266,7 +275,7 @@ public:
 					}
 
 					if (a.type < b.type) {
-						if (Dist(a.px, a.py, b.px, b.py) - b.radius < fMinEscapeDistance) {
+						if (Dist(a.px, a.py, b.px, b.py) - a.radius - b.radius < fMinEscapeDistance) {
 							fEscapeX += a.px - b.px;
 							fEscapeY += a.py - b.py;
 						}
@@ -300,15 +309,14 @@ public:
 					fEscapeX /= fEscapeAbs;
 					fEscapeY /= fEscapeAbs;
 				}
+
+				a.ax += fSeparationX * fSepWeight + fAlignmentX * fAliWeight + fCohesionX * fCohWeight;
+				a.ay += fSeparationY * fSepWeight + fAlignmentY * fAliWeight + fCohesionY * fCohWeight;
+
+				a.ax += fEscapeX * fPredatorWeight;
+				a.ay += fEscapeY * fPredatorWeight;
+
 			}
-
-			
-
-			a.ax += fSeparationX * fSepWeight + fAlignmentX * fAliWeight + fCohesionX * fCohWeight;
-			a.ay += fSeparationY * fSepWeight + fAlignmentY * fAliWeight + fCohesionY * fCohWeight;
-
-			a.ax += fEscapeX * fPredatorWeight;
-			a.ay += fEscapeY * fPredatorWeight;
 
 			if (IsAtBoundary(a.px, a.py, a.radius, (float)ScreenWidth(), (float)ScreenHeight(), fMinDistFromBoundary)) {
 				float fTurnX, fTurnY;
@@ -358,10 +366,9 @@ public:
 
 void main() {
 	FishPond simulation;
-	if (simulation.ConstructConsole(220, 120, 8, 8))
-		simulation.Start();
-	else
-		wcout << L"Failed Constructing Console" << endl;
+	if (simulation.ConstructConsole(220, 120, 8, 8)) simulation.Start();
+	else wcout << L"Failed Constructing Console" << endl;
+		
 
 	
 }
