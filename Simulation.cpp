@@ -63,13 +63,13 @@ private:
 
 	float fSepWeight = 15.0f;
 	float fAliWeight = 10.0f;
-	float fCohWeight = 5.0f;
+	float fCohWeight = 10.0f;
 
 	float fMinEscapeDistance = 6.0f;
 	float fPredatorWeight = 1000.0f;
 
 	float fMinDistFromBoundary = 5.0f;
-	float fTurnWeight = 50.0f;
+	float fTurnWeight = 30.0f;
 
 public:
 	bool OnUserCreate() {
@@ -128,8 +128,8 @@ public:
 			return Type >= 1;
 		};
 
-		auto IsAtBoundary = [](float x, float y, float bx, float by, float r) {
-			if (x < r || bx - x < r || y < r || by - y < r)
+		auto IsAtBoundary = [](float x, float y, float r, float bx, float by, float d) {
+			if (x - r < d || bx - x - r < d || y - r  < d || by - y - r < d)
 				return true;
 			else
 				return false;
@@ -310,25 +310,18 @@ public:
 			a.ax += fEscapeX * fPredatorWeight;
 			a.ay += fEscapeY * fPredatorWeight;
 
-			/*if (IsAtBoundary(a.px, a.py, (float)ScreenWidth(), (float)ScreenHeight(), fMinDistFromBoundary)) {
+			if (IsAtBoundary(a.px, a.py, a.radius, (float)ScreenWidth(), (float)ScreenHeight(), fMinDistFromBoundary)) {
 				float fTurnX, fTurnY;
-				if (a.px < fMinDistFromBoundary || ScreenWidth() - a.px < fMinDistFromBoundary) {
-					fTurnX = -a.vx;
-					if (a.vy > 0) 
-						fTurnY = 1.0f;
-					else
-						fTurnY = -1.0f;
-				}
-				else {
-					fTurnY = -a.vy;
-					if (a.vx > 0)
-						fTurnX = 1.0f;
-					else
-						fTurnX = -1.0f;
-				}
+				fTurnX = 0.0f;
+				fTurnY = 0.0f;
+				if (a.px - a.radius < fMinDistFromBoundary) fTurnX = 1.0f;
+				if (ScreenWidth() - a.px - a.radius < fMinDistFromBoundary) fTurnX = -1.0f;
+				if (a.py - a.radius < fMinDistFromBoundary) fTurnY = 1.0f;
+				if (ScreenHeight() - a.py - a.radius < fMinDistFromBoundary) fTurnY = -1.0f;
+					
 				a.ax += fTurnX * fTurnWeight;
 				a.ay += fTurnY * fTurnWeight;
-			}*/
+			}
 
 			float fVAbs = sqrtf((a.vx + a.ax * fElapsedTime) * (a.vx + a.ax * fElapsedTime) + (a.vy + a.ay * fElapsedTime) * (a.vy + a.ay * fElapsedTime));
 			a.vx = (a.vx + a.ax * fElapsedTime) / fVAbs;
